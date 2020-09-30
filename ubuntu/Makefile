@@ -15,6 +15,13 @@
 ##
 ##
 ##
+obj-$(CONFIG_UBUNTU_HOST)      += ubuntu-host/
+##
+##
+##
+##
+##
+##
 
 # This is a stupid trick to get kbuild to create ubuntu/built-in.o
 obj- += foo.o
