@@ -1313,8 +1313,11 @@ static int imx258_probe(struct i2c_client *client)
 	} else {
 		val = clk_get_rate(imx258->clk);
 	}
-	if (val != IMX258_INPUT_CLOCK_FREQ) {
-		dev_err(&client->dev, "input clock frequency not supported\n");
+
+	if (val < IMX258_INPUT_CLOCK_FREQ_MIN
+		|| val > IMX258_INPUT_CLOCK_FREQ_MAX) {
+		dev_err(&client->dev, "input clock frequency %u not supported\n",
+			val);
 		return -EINVAL;
 	}
 
