@@ -1293,7 +1293,6 @@ static void imx258_free_controls(struct imx258 *imx258)
 static int imx258_probe(struct i2c_client *client)
 {
 	struct imx258 *imx258;
-	unsigned long clk_rate;
 	int ret, i;
 	u32 val = 0;
 
