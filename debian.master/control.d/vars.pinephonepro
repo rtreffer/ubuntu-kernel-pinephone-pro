@@ -1,0 +1,6 @@
+arch="arm64"
+supported="PinePhone Pro kernel branch."
+target="Geared toward interactive pinephone usage."
+desc="=HUMAN= SMP"
+bootloader="flash-kernel [arm64]"
+provides="kvm-api-4, redhat-cluster-modules, ivtv-modules"

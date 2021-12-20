@@ -1,5 +1,7 @@
 linux (5.15.0-17.18) jammy; urgency=medium
 
+  * Add pinephonepro flavor
+
   * Applied patches from Megi https://github.com/megous/linux/releases
 
  -- René Treffer <treffer@measite.de>  Fri, 14 Jan 2022 22:55:22 +0100
