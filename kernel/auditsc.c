@@ -1002,7 +1002,7 @@ static void audit_reset_context(struct audit_context *ctx)
 	ctx->target_pid = 0;
 	ctx->target_auid = ctx->target_uid = KUIDT_INIT(0);
 	ctx->target_sessionid = 0;
-	ctx->target_sid = 0;
+	lsmblob_init(&(ctx->target_lsm), 0);
 	ctx->target_comm[0] = '\0';
 	unroll_tree_refs(ctx, NULL, 0);
 	WARN_ON(!list_empty(&ctx->killed_trees));
@@ -1602,8 +1602,9 @@ static void audit_log_uring(struct audit_context *ctx)
 			 from_kgid(&init_user_ns, cred->egid),
 			 from_kgid(&init_user_ns, cred->sgid),
 			 from_kgid(&init_user_ns, cred->fsgid));
-	audit_log_task_context(ab);
+	audit_log_task_context(ab, NULL);
 	audit_log_key(ab, ctx->filterkey);
+}
 
 void audit_log_lsm(struct lsmblob *blob, bool exiting)
 {
@@ -1618,7 +1619,7 @@ void audit_log_lsm(struct lsmblob *blob, bool exiting)
 	if (!lsm_multiple_contexts())
 		return;
 
-	if (context && context->in_syscall && !exiting)
+	if (context && context->context == AUDIT_CTX_SYSCALL && !exiting)
 		return;
 
 	ab = audit_log_start(context, GFP_ATOMIC, AUDIT_MAC_TASK_CONTEXTS);
@@ -1783,13 +1784,10 @@ static void audit_log_exit(void)
 		audit_log_name(context, n, NULL, i++, &call_panic);
 	}
 
-<<<<<<< HEAD
 	if (context->context == AUDIT_CTX_SYSCALL)
 		audit_log_proctitle();
-=======
-	audit_log_proctitle();
+
 	audit_log_lsm(NULL, true);
->>>>>>> f3280662d15d (UBUNTU: SAUCE: Audit: Add new record for multiple process LSM attributes)
 
 	/* Send end of event record to help user space know we are finished */
 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_EOE);
@@ -2043,7 +2041,7 @@ void __audit_syscall_exit(int success, long return_code)
 	if (!list_empty(&context->killed_trees))
 		audit_kill_trees(context);
 
-	if (!context->dummy && context->in_syscall) {
+	if (!context->dummy && context->context == AUDIT_CTX_SYSCALL) {
 		if (success)
 			context->return_valid = AUDITSC_SUCCESS;
 		else
@@ -2073,7 +2071,7 @@ void __audit_syscall_exit(int success, long return_code)
 			audit_log_exit();
 	}
 
-	context->in_syscall = 0;
+	context->context = AUDIT_CTX_UNUSED;
 	context->prio = context->state == AUDIT_STATE_RECORD ? ~0ULL : 0;
 
 	audit_free_module(context);
@@ -2546,13 +2544,13 @@ void audit_stamp_context(struct audit_context *ctx)
 int auditsc_get_stamp(struct audit_context *ctx,
 		       struct timespec64 *t, unsigned int *serial)
 {
-	if (ctx->serial && !ctx->in_syscall) {
+	if (ctx->serial && ctx->context != AUDIT_CTX_SYSCALL) {
 		t->tv_sec  = ctx->ctime.tv_sec;
 		t->tv_nsec = ctx->ctime.tv_nsec;
 		*serial    = ctx->serial;
 		return 1;
 	}
-	if (!ctx->in_syscall)
+	if (ctx->context != AUDIT_CTX_SYSCALL)
 		return 0;
 	if (!ctx->serial)
 		ctx->serial = audit_serial();
