@@ -584,7 +584,7 @@ static int __init fintek_wdt_find(int sioaddr)
 		type = f81866;
 		break;
 	case SIO_F81966_ID:
-		watchdog.type = f81966;
+		type = f81966;
 		break;
 	default:
 		pr_info("Unrecognized Fintek device: %04x\n",
