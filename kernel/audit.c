@@ -1083,7 +1083,7 @@ static inline void audit_log_user_recv_msg(struct audit_buffer **ab,
 
 	context = audit_context();
 	if (context) {
-		if (!context->in_syscall)
+		if (context->context == AUDIT_CTX_UNUSED)
 			audit_stamp_context(context);
 		audit_log_common_recv_msg(context, ab, msg_type);
 		return;
