@@ -1002,7 +1002,7 @@ static void audit_reset_context(struct audit_context *ctx)
 	ctx->target_pid = 0;
 	ctx->target_auid = ctx->target_uid = KUIDT_INIT(0);
 	ctx->target_sessionid = 0;
-	ctx->target_sid = 0;
+	memset(&ctx->target_lsm, 0, sizeof(struct lsmblob));
 	ctx->target_comm[0] = '\0';
 	unroll_tree_refs(ctx, NULL, 0);
 	WARN_ON(!list_empty(&ctx->killed_trees));
@@ -1569,7 +1569,6 @@ out:
 	audit_log_end(ab);
 }
 
-<<<<<<< HEAD
 /**
  * audit_log_uring - generate a AUDIT_URINGOP record
  * @ctx: the audit context
@@ -1603,9 +1602,11 @@ static void audit_log_uring(struct audit_context *ctx)
 			 from_kgid(&init_user_ns, cred->egid),
 			 from_kgid(&init_user_ns, cred->sgid),
 			 from_kgid(&init_user_ns, cred->fsgid));
-	audit_log_task_context(ab);
+	audit_log_task_context(ab, NULL);
 	audit_log_key(ab, ctx->filterkey);
-=======
+	audit_log_end(ab);
+}
+
 void audit_log_lsm(struct lsmblob *blob, bool exiting)
 {
 	struct audit_context *context = audit_context();
@@ -1619,7 +1620,7 @@ void audit_log_lsm(struct lsmblob *blob, bool exiting)
 	if (!lsm_multiple_contexts())
 		return;
 
-	if (context && context->in_syscall && !exiting)
+	if (context && context->context != AUDIT_CTX_UNUSED && !exiting)
 		return;
 
 	ab = audit_log_start(context, GFP_ATOMIC, AUDIT_MAC_TASK_CONTEXTS);
@@ -1649,7 +1650,6 @@ void audit_log_lsm(struct lsmblob *blob, bool exiting)
 		security_release_secctx(&lsmdata);
 	}
 
->>>>>>> afcd51ff06b7 (UBUNTU: SAUCE: Audit: Add new record for multiple process LSM attributes)
 	audit_log_end(ab);
 }
 
@@ -2524,17 +2524,13 @@ void audit_stamp_context(struct audit_context *ctx)
 int auditsc_get_stamp(struct audit_context *ctx,
 		       struct timespec64 *t, unsigned int *serial)
 {
-<<<<<<< HEAD
-	if (ctx->context == AUDIT_CTX_UNUSED)
-=======
-	if (ctx->serial && !ctx->in_syscall) {
+	if (ctx->serial && ctx->context == AUDIT_CTX_UNUSED) {
 		t->tv_sec  = ctx->ctime.tv_sec;
 		t->tv_nsec = ctx->ctime.tv_nsec;
 		*serial    = ctx->serial;
 		return 1;
 	}
-	if (!ctx->in_syscall)
->>>>>>> afcd51ff06b7 (UBUNTU: SAUCE: Audit: Add new record for multiple process LSM attributes)
+	if (ctx->context == AUDIT_CTX_UNUSED)
 		return 0;
 	if (!ctx->serial)
 		ctx->serial = audit_serial();
