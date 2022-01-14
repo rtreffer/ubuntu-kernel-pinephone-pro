@@ -1,3 +1,9 @@
+linux (5.15.0-17.18) jammy; urgency=medium
+
+  * Applied patches from Megi https://github.com/megous/linux/releases
+
+ -- René Treffer <treffer@measite.de>  Fri, 14 Jan 2022 22:55:22 +0100
+
 linux (5.15.0-17.17) jammy; urgency=medium
 
   * jammy/linux: 5.15.0-17.17 -proposed tracker (LP: #1957809)
