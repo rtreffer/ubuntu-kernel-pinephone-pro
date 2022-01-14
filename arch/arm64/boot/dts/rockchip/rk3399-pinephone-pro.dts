@@ -13,7 +13,7 @@
 #include "rk3399.dtsi"
 #include "rk3399-opp.dtsi"
 
-#define WITHOUT_CDN_DP // TODO: everything works, but it is simpler to test mipi
+// #define WITHOUT_CDN_DP // TODO: everything works, but it is simpler to test mipi
 
 / {
 	model = "Pine64 PinePhonePro";
