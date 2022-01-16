@@ -13,8 +13,6 @@
 #include "rk3399.dtsi"
 #include "rk3399-opp.dtsi"
 
-// #define WITHOUT_CDN_DP // TODO: everything works, but it is simpler to test mipi
-
 / {
 	model = "Pine64 PinePhonePro";
 	compatible = "pine64,pinephone-pro", "rockchip,rk3399";
@@ -50,6 +48,43 @@
 			press-threshold-microvolt = <300000>;
 		};
 	};
+
+        bat: battery {
+                compatible = "simple-battery";
+                voltage-min-design-microvolt = <3400000>;
+                voltage-max-design-microvolt = <4350000>;
+                energy-full-design-microwatt-hours = <11400000>;
+                charge-full-design-microamp-hours = <3000000>;
+                precharge-current-microamp = <120000>;
+                charge-term-current-microamp = <150000>;
+                constant-charge-current-max-microamp = <1500000>;
+                constant-charge-voltage-max-microvolt = <4350000>;
+                factory-internal-resistance-micro-ohms = <150000>;
+                resistance-temp-table = <20 150>;
+                ocv-capacity-celsius = <20>;
+                ocv-capacity-table-0 =
+			<4308000 100>,
+			<4217000 95>,
+			<4161000 90>,
+			<4110000 85>,
+			<4066000 80>,
+			<4007000 75>,
+			<3974000 70>,
+			<3937000 65>,
+			<3896000 60>,
+			<3853000 55>,
+			<3827000 50>,
+			<3807000 45>,
+			<3793000 40>,
+			<3780000 35>,
+			<3768000 30>,
+			<3756000 25>,
+			<3740000 20>,
+			<3716000 15>,
+			<3689000 10>,
+			<3675000 5>,
+			<3400000 0>;
+        };
 
 	cluster1_opp_ppp: opp-table1b {
 		compatible = "operating-points-v2";
@@ -115,7 +150,7 @@
 			color = <LED_COLOR_ID_BLUE>;
 			default-state = "off";
 			function = LED_FUNCTION_CHARGING;
-			gpios = <&gpio0 RK_PD6 GPIO_ACTIVE_HIGH>;
+			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
 			label = "blue:charging";
 		};
 	};
@@ -132,6 +167,69 @@
 			linux,code = <KEY_POWER>;
 			wakeup-source;
 		};
+	};
+
+	// in1  - digital mic daughhterboard
+	// in2  - headset mic
+	// in3  - modem output  (muxed with mono)
+	// spol - earphone
+	// hpo  - heaphones
+	// lout - modem input
+	// spaker - amp enabled by SPK_CTL_H
+	//
+	// mclk - GPIO4_A0/I2S_CLK
+	//
+	// some gpio-jack-detection driver?
+	//pinctrl-0 = <&hp_det>; // GPIO4_D4
+
+	rt5640-sound {
+		compatible = "simple-audio-card";
+		simple-audio-card,name = "rockchip,rt5640-codec";
+		simple-audio-card,aux-devs = <&speaker_amp>;
+		simple-audio-card,format = "i2s";
+		simple-audio-card,mclk-fs = <256>;
+
+		simple-audio-card,widgets =
+			"Microphone", "Headset Microphone",
+			"Microphone", "Internal Microphone",
+			"Headphone", "Headphone Jack",
+			"Speaker", "Internal Earpiece",
+			"Speaker", "Internal Speaker",
+			"Line", "Line In Modem",
+			"Line", "Line Out Modem";
+
+		simple-audio-card,routing =
+			"Headphone Jack", "HPOL",
+			"Headphone Jack", "HPOR",
+			"Internal Earpiece", "SPOLP",
+			"Internal Earpiece", "SPOLN",
+			"Internal Speaker", "Speaker Amp OUTL",
+			"Internal Speaker", "Speaker Amp OUTR",
+			"Speaker Amp INL", "HPOL",
+			"Speaker Amp INR", "HPOR",
+			"DMIC1", "Internal Microphone",
+			"Headset Microphone", "MICBIAS1",
+			"IN2P", "Headset Microphone",
+			"Line Out Modem", "LOUTL",
+			"Line Out Modem", "LOUTR",
+			"IN3P", "Line In Modem",
+			"IN3N", "Line In Modem";
+
+		simple-audio-card,cpu {
+			sound-dai = <&i2s0>;
+		};
+
+		simple-audio-card,codec {
+			sound-dai = <&rt5640>;
+		};
+	};
+
+	speaker_amp: audio-amplifier {
+		compatible = "simple-audio-amplifier";
+		pinctrl-names = "default";
+		pinctrl-0 = <&spk_en>;
+		enable-gpios = <&gpio0 RK_PB3 GPIO_ACTIVE_HIGH>;
+		sound-name-prefix = "Speaker Amp";
 	};
 
 	sdio_pwrseq: sdio-pwrseq {
@@ -169,25 +267,35 @@
 		regulator-max-microvolt = <5000000>;
 		regulator-always-on;
 		regulator-boot-on;
-		vin-supply = <&vcc_sysin>;
+		vin-supply = <&boost_otg>;
 
 		regulator-state-mem {
 			regulator-on-in-suspend;
 		};
 	};
 
+	/*
+	 * This is not a regulator, but GPIO0_A6 is used to disable
+	 * VCC_SYS -> VBAT+ switch that helps boost that power path's
+	 * current carrying capacity.
+	 *
+	 * GPIO0_A6 high: path is disabled no matter what
+	 * GPIO0_A6 low: path is enabled if there's 5V voltage on
+	 * VBUS_TYPEC
+	 *
+	 * GPIO0_A6 must be high when the phone is providing VBUS_TYPEC
+	 * power.
+	 */
 	vcc5v0_typec: vcc5v0-typec-regulator {
 		compatible = "regulator-fixed";
-		//enable-active-high;
+		enable-active-high;
 		gpio = <&gpio0 RK_PA6 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&vcc5v0_typec_en>;
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		regulator-name = "vcc5v0_typec";
-		vin-supply = <&vcc5v0_sys>;
-		regulator-always-on;
-		regulator-boot-on;
+		vin-supply = <&boost_otg>;
 
 		regulator-state-mem {
 			regulator-on-in-suspend;
@@ -207,6 +315,30 @@
 		regulator-state-mem {
 			regulator-on-in-suspend;
 		};
+	};
+
+	vcc_4g_5v: vcc-4g-5v {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio1 RK_PC7 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&vcc_4g_5v_en>;
+		regulator-name = "vcc_4g_5v";
+		regulator-min-microvolt = <5000000>;
+		regulator-max-microvolt = <5000000>;
+		vin-supply = <&vcc5v0_sys>;
+	};
+
+	vcc_4g: vcc-4g {
+		compatible = "regulator-fixed";
+		enable-active-high;
+		gpio = <&gpio4 RK_PC7 GPIO_ACTIVE_HIGH>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&vcc_4g_en>;
+		regulator-name = "vcc_4g";
+		regulator-min-microvolt = <3800000>;
+		regulator-max-microvolt = <3800000>;
+		vin-supply = <&vcc_sysin>;
 	};
 
 	vcc1v8_codec: vcc1v8-codec-regulator {
@@ -258,6 +390,14 @@
 		regulator-always-on;
 		regulator-boot-on;
 	};
+
+	typec_extcon_bridge: typec-extcon {
+		compatible = "linux,typec-extcon-bridge";
+		usb-role-switch;
+		orientation-switch;
+		mode-switch;
+		svid = /bits/ 16 <0xff01>;
+	};
 };
 
 &cpu_l0 {
@@ -286,12 +426,11 @@
 	operating-points-v2 = <&cluster1_opp_ppp>;
 };
 
-#ifndef WITHOUT_CDN_DP
 &cdn_dp {
 	status = "okay";
-	extcon = <&fusb0>;
+	extcon = <&typec_extcon_bridge>;
+	phys = <&tcphy0_dp>;
 };
-#endif
 
 &emmc_phy {
 	status = "okay";
@@ -319,7 +458,6 @@
 		pinctrl-0 = <&pmic_int_l>;
 		rockchip,system-power-controller;
 		wakeup-source;
-		extcon = <&fusb0>;
 
 		vcc1-supply = <&vcc_sysin>;
 		vcc2-supply = <&vcc_sysin>;
@@ -329,6 +467,7 @@
 		vcc7-supply = <&vcc3v3_sys>;
 		vcc8-supply = <&vcc_sysin>;
 		vcc9-supply = <&vcc3v3_sys>;
+		usb-supply = <&vcc5v0_typec>;
 
 		regulators {
 			vdd_cpu_l: DCDC_REG1 {
@@ -498,13 +637,13 @@
 
 			otg_switch: OTG_SWITCH {
 				regulator-name = "otg_switch";
-				// TODO: This requires a proper rk818-charger implementation
-				// without this always-on the type-c is not powered on
-				//regulator-always-on;
-				//regulator-boot-on;
 			};
 		};
 
+		/*
+		 * XXX: Backported BSP stuff, drop this. Use standard
+		 * "monitored-battery" property.
+		 */
 		battery {
 			compatible = "rockchip,rk818-battery";
 			ocv_table = <3400 3675 3689 3716 3740 3756 3768 3780
@@ -528,6 +667,12 @@
 			virtual_power = <0>;
 			power_dc2otg = <0>;
 			otg5v_suspend_enable = <1>;
+		};
+
+		charger {
+			compatible = "rockchip,rk818-charger";
+			power-supplies = <&fusb0>;
+			monitored-battery = <&bat>;
 		};
 	};
 
@@ -617,7 +762,7 @@
 		/*XXX: also depends on vcca1v8_codec for I2C bus power */
 
 		reset-gpios = <&gpio1 RK_PA0 GPIO_ACTIVE_LOW>;
-		powerdown-gpios = <&gpio2 RK_PB4 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
 		rotation = <180>;
 
 		port {
@@ -631,9 +776,9 @@
 	};
 
 	/* Front-facing camera */
-	ucam: camera@3c {
-		compatible = "ovti,ov5640";
-		reg = <0x3c>;
+	ucam: camera@36 {
+		compatible = "ovti,ov8858";
+		reg = <0x36>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ucam_pdn>;
 
@@ -643,8 +788,10 @@
 		DOVDD-supply = <&vcc1v8_dvp>;
 		/*XXX: also depends on vcca1v8_codec for I2C bus power */
 
-		powerdown-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio2 RK_PB4 GPIO_ACTIVE_HIGH>;
+
 		rotation = <180>;
+//		status = "disabled";
 
 		port {
 			ucam_out: endpoint {
@@ -653,6 +800,24 @@
 				clock-lanes = <0>;
 			};
 		};
+	};
+
+	// XXX: modem codec supplies:
+	// - vcc1v8_codec
+	// - vcca3v0_codec
+
+	// supplies: (always on currently)
+	// - vcca3v0_codec
+	// - vcca1v8_codec
+	// - vcc5v0_sys - spk_vcc
+	rt5640: rt5640@1c {
+		compatible = "realtek,rt5640";
+		reg = <0x1c>;
+		clocks = <&cru SCLK_I2S_8CH_OUT>;
+		clock-names = "mclk";
+		realtek,dmic1-data-pin = <1>;
+		realtek,in3-differential;
+		#sound-dai-cells = <0>;
 	};
 };
 
@@ -698,7 +863,9 @@
 		interrupts = <RK_PA2 IRQ_TYPE_LEVEL_LOW>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&fusb0_int>;
-		vbus-supply = <&vcc5v0_typec>;
+		extcon = <&typec_extcon_bridge>;
+		usb-role-switch = <&typec_extcon_bridge>;
+		vbus-supply = <&otg_switch>;
 
 		connector {
 			compatible = "usb-c-connector";
@@ -706,12 +873,18 @@
 			label = "USB-C";
 			op-sink-microwatt = <2500000>;
 			power-role = "dual";
-			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM)>;
-			source-pdos = <PDO_FIXED(5000, 900, PDO_FIXED_USB_COMM)>;
+			sink-pdos = <PDO_FIXED(5000, 3000, PDO_FIXED_USB_COMM | PDO_FIXED_DUAL_ROLE | PDO_FIXED_DATA_SWAP)>;
+			source-pdos = <PDO_FIXED(5000, 900, PDO_FIXED_USB_COMM | PDO_FIXED_DUAL_ROLE | PDO_FIXED_DATA_SWAP)>;
 			try-power-role = "sink";
+			mode-switch = <&typec_extcon_bridge>;
+			orientation-switch = <&typec_extcon_bridge>;
 
-			extcon-cables = <1 2 5 6 9 10 12 44>;
-			typec-altmodes = <0xff01 1 0x001c0c00 1>;
+			altmodes {
+				dp {
+					svid = <0xff01>;
+					vdo = <0x0c0046>;
+				};
+			};
 
 			ports {
 				#address-cells = <1>;
@@ -783,6 +956,7 @@
 	};
 };
 
+/* This bus is exposed on POGO pins */
 &i2c5 {
 	clock-frequency = <400000>;
 	i2c-scl-rising-time-ns = <450>;
@@ -886,6 +1060,12 @@
 	};
 };
 
+&i2s0 {
+	rockchip,playback-channels = <2>;
+	rockchip,capture-channels = <2>;
+	pinctrl-0 = <&i2s0_2ch_bus>;
+	status = "okay";
+};
 
 &io_domains {
 	status = "okay";
@@ -915,7 +1095,7 @@
 };
 
 &isp1 {
-	status = "okay";
+	//status = "okay";
 
 	ports {
 		port@0 {
@@ -933,11 +1113,11 @@
 };
 
 &isp1_mmu {
-	status = "okay";
+	//status = "okay";
 };
 
 &mipi_dsi1 {
-	status = "okay";
+	//status = "okay";
 };
 
 &mipi_dsi {
@@ -974,6 +1154,35 @@
 	};
 };
 
+&uart3 {
+	status = "okay";
+
+	modem {
+		compatible = "quectel,eg25";
+		char-device-name = "modem-power";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&modem_control_pins>;
+
+		power-supply = <&vcc_4g>;
+		vbus-supply = <&vcc_4g_5v>;
+
+		enable-gpios = <&gpio0 RK_PB0 GPIO_ACTIVE_HIGH>; // W_DISABLE#
+		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
+		status-gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_HIGH>;
+		pwrkey-gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+
+		host-ready-gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_HIGH>; // apready
+		wakeup-gpios = <&gpio0 RK_PA1 GPIO_ACTIVE_HIGH>; // ri
+
+		dtr-gpios = <&gpio0 RK_PA3 GPIO_ACTIVE_HIGH>;
+		cts-gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_HIGH>;
+		rts-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_HIGH>;
+
+		quectel,qdai = "3,0,0,4,0,0,1,1";
+	};
+};
+
 &pmu_io_domains {
 	pmu1830-supply = <&vcc_1v8>;
 	status = "okay";
@@ -1006,11 +1215,11 @@
 		};
 
 		wcam_pdn: wcam-pdn {
-			rockchip,pins = <2 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		ucam_pdn: ucam-pdn {
-			rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <2 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -1031,6 +1240,29 @@
 
 		blue_led_pin: blue-led-pin {
 			rockchip,pins = <4 RK_PD6 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	modem {
+		vcc_4g_5v_en: vcc-4g-5v-en-pin {
+			rockchip,pins = <1 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		vcc_4g_en: vcc-4g-en-pin {
+			rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		modem_control_pins: modem-control-pins {
+			rockchip,pins =
+				<0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PA6 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PC0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PC1 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -1084,6 +1316,13 @@
 	sound {
 		vcc1v8_codec_en: vcc1v8-codec-en {
 			rockchip,pins = <3 RK_PA4 RK_FUNC_GPIO &pcfg_pull_down>;
+		};
+		hp_det: hp-det {
+			rockchip,pins = <4 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		spk_en: spk-en {
+			rockchip,pins = <0 RK_PB3 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -1146,7 +1385,7 @@
 };
 
 &tcphy0 {
-	extcon = <&fusb0>;
+	extcon = <&typec_extcon_bridge>;
 	status = "okay";
 };
 
@@ -1176,15 +1415,7 @@
 
 &u2phy0 {
 	status = "okay";
-
-	u2phy0_otg: otg-port {
-		status = "okay";
-	};
-
-	u2phy0_host: host-port {
-		status = "okay";
-		phy-supply = <&vcc5v0_sys>;
-	};
+	extcon = <&typec_extcon_bridge>;
 
 	port {
 		u2phy0_typec_hs: endpoint {
@@ -1193,17 +1424,22 @@
 	};
 };
 
+&u2phy0_otg {
+	status = "okay";
+};
+
+&u2phy0_host {
+	status = "okay";
+	phy-supply = <&vcc5v0_sys>;
+};
+
 &u2phy1 {
 	status = "okay";
+};
 
-	u2phy1_otg: otg-port {
-		status = "okay";
-	};
-
-	u2phy1_host: host-port {
-		status = "okay";
-		phy-supply = <&vcc5v0_sys>;
-	};
+&u2phy1_host {
+	status = "okay";
+	phy-supply = <&vcc5v0_sys>;
 };
 
 &uart0 {
@@ -1252,12 +1488,16 @@
 };
 
 &usbdrd_dwc3_0 {
-	dr_mode = "peripheral";
+	dr_mode = "otg";
+	extcon = <&typec_extcon_bridge>;
 	status = "okay";
 };
 
 &vopb {
 	status = "okay";
+	assigned-clocks = <&cru DCLK_VOP0_DIV>, <&cru DCLK_VOP0>, <&cru ACLK_VOP0>, <&cru HCLK_VOP0>;
+	assigned-clock-rates = <0>, <0>, <400000000>, <100000000>;
+	assigned-clock-parents = <&cru PLL_CPLL>, <&cru DCLK_VOP0_FRAC>;
 };
 
 &vopb_mmu {
@@ -1266,6 +1506,9 @@
 
 &vopl {
 	status = "okay";
+	assigned-clocks = <&cru DCLK_VOP1_DIV>, <&cru DCLK_VOP1>, <&cru ACLK_VOP1>, <&cru HCLK_VOP1>;
+	assigned-clock-rates = <0>, <0>, <400000000>, <100000000>;
+	assigned-clock-parents = <&cru PLL_CPLL>, <&cru DCLK_VOP1_FRAC>;
 };
 
 &vopl_mmu {
