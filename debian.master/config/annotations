@@ -4076,7 +4076,7 @@ CONFIG_TOUCHSCREEN_EGALAX                       policy<{'arm64': 'm', 'armhf': '
 CONFIG_TOUCHSCREEN_EGALAX_SERIAL                policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_EXC3000                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_FUJITSU                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_TOUCHSCREEN_GOODIX                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TOUCHSCREEN_GOODIX                       policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_HIDEEP                       policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_HYCON_HY46XX                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TOUCHSCREEN_ILI210X                      policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -4883,7 +4883,7 @@ CONFIG_MFD_RDC321X                              policy<{'amd64': 'm', 'arm64': '
 CONFIG_MFD_RT4831                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MFD_RT5033                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_MFD_RC5T583                              policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
-CONFIG_MFD_RK808                                policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_MFD_RK808                                policy<{'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_RN5T618                              policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_MFD_SEC_CORE                             policy<{'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y'}>
 CONFIG_MFD_SI476X_CORE                          policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
@@ -9583,7 +9583,7 @@ CONFIG_IMX8MM_THERMAL                           policy<{'arm64': 'm', 'armhf-gen
 CONFIG_K3_THERMAL                               policy<{'arm64': 'm'}>
 CONFIG_MAX77620_THERMAL                         policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_SUN8I_THERMAL                            policy<{'arm64': 'm'}>
-CONFIG_ROCKCHIP_THERMAL                         policy<{'arm64': 'm', 'armhf': 'm'}>
+CONFIG_ROCKCHIP_THERMAL                         policy<{'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm'}>
 CONFIG_RCAR_THERMAL                             policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_RCAR_GEN3_THERMAL                        policy<{'arm64': 'm', 'armhf': 'm'}>
 CONFIG_DOVE_THERMAL                             policy<{'armhf': 'm'}>
@@ -10066,7 +10066,7 @@ CONFIG_USB_ULPI                                 policy<{'arm64': 'y', 'armhf': '
 CONFIG_NOP_USB_XCEIV                            note<boot essential on omap/highbank>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support
-CONFIG_TYPEC                                    policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TYPEC                                    policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TYPEC_UCSI                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_UCSI_CCG                                 policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_UCSI_ACPI                                policy<{'amd64': 'm', 'arm64': 'm'}>
@@ -10076,7 +10076,7 @@ CONFIG_TYPEC_STUSB160X                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_TYPEC_QCOM_PMIC                          policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Alternate Mode drivers
-CONFIG_TYPEC_DP_ALTMODE                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TYPEC_DP_ALTMODE                         policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TYPEC_NVIDIA_ALTMODE                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Multiplexer/DeMultiplexer Switch support
@@ -10084,8 +10084,8 @@ CONFIG_TYPEC_MUX_PI3USB30532                    policy<{'amd64': 'm', 'arm64': '
 CONFIG_TYPEC_MUX_INTEL_PMC                      policy<{'amd64': 'm'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Port Controller Manager
-CONFIG_TYPEC_TCPM                               policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_TYPEC_FUSB302                            policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TYPEC_TCPM                               policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TYPEC_FUSB302                            policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TYPEC_WCOVE                              policy<{'amd64': 'n'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Port Controller Manager >> Type-C Port Controller Interface driver
@@ -10278,7 +10278,7 @@ CONFIG_REGULATOR_QCOM_SPMI                      policy<{'amd64': 'm', 'arm64': '
 CONFIG_REGULATOR_QCOM_USB_VBUS                  policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_RASPBERRYPI_TOUCHSCREEN_ATTINY policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_RC5T583                        policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
-CONFIG_REGULATOR_RK808                          policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_REGULATOR_RK808                          policy<{'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_RN5T618                        policy<{'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_RT4801                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_REGULATOR_RT4831                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
@@ -10361,7 +10361,7 @@ CONFIG_ARMADA_37XX_WATCHDOG                     policy<{'arm64': 'm', 'armhf': '
 CONFIG_CADENCE_WATCHDOG                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_FTWDT010_WATCHDOG                        policy<{'armhf': 'm'}>
 CONFIG_S3C2410_WATCHDOG                         policy<{'armhf': 'm'}>
-CONFIG_DW_WATCHDOG                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
+CONFIG_DW_WATCHDOG                              policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'n'}>
 CONFIG_OMAP_WATCHDOG                            policy<{'armhf': 'm'}>
 CONFIG_K3_RTI_WATCHDOG                          policy<{'arm64': 'm'}>
 CONFIG_ORION_WATCHDOG                           policy<{'armhf': 'm'}>
@@ -10664,7 +10664,7 @@ CONFIG_BLK_DEV_THROTTLING                       note<CGROUP disk consumption con
 
 # Menu: Enable the block layer >> IO Schedulers
 CONFIG_MQ_IOSCHED_DEADLINE                      policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
-CONFIG_MQ_IOSCHED_KYBER                         policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
+CONFIG_MQ_IOSCHED_KYBER                         policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_IOSCHED_BFQ                              policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm', 's390x': 'm'}>
 CONFIG_BFQ_GROUP_IOSCHED                        policy<{'amd64': 'y', 'arm64': 'y', 'armhf': 'y', 'ppc64el': 'y', 's390x': 'y'}>
 CONFIG_BFQ_CGROUP_DEBUG                         policy<{'amd64': 'n', 'arm64': 'n', 'armhf': 'n', 'ppc64el': 'n', 's390x': 'n'}>
