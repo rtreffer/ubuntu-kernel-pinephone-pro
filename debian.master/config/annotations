@@ -10076,7 +10076,7 @@ CONFIG_TYPEC_STUSB160X                          policy<{'amd64': 'm', 'arm64': '
 CONFIG_TYPEC_QCOM_PMIC                          policy<{'arm64': 'm', 'armhf': 'm'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Alternate Mode drivers
-CONFIG_TYPEC_DP_ALTMODE                         policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'y', 'armhf': 'm', 'ppc64el': 'm'}>
+CONFIG_TYPEC_DP_ALTMODE                         policy<{'amd64': 'm', 'arm64': 'm', 'arm64-pinephonepro': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 CONFIG_TYPEC_NVIDIA_ALTMODE                     policy<{'amd64': 'm', 'arm64': 'm', 'armhf': 'm', 'ppc64el': 'm'}>
 
 # Menu: Device Drivers >> USB support >> USB Type-C Support >> USB Type-C Multiplexer/DeMultiplexer Switch support
