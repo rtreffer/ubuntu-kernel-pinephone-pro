@@ -901,7 +901,6 @@ crypto_engine
 crypto_safexcel
 crypto_simd
 crypto_user
-cryptoloop
 cs3308
 cs5345
 cs53l32a
@@ -1577,7 +1576,7 @@ go7007-loader
 go7007-usb
 goku_udc
 goldfish_battery
-goodix
+goodix_ts
 gp2ap002
 gp2ap020a00f
 gp8psk-fe
@@ -2876,7 +2875,6 @@ mcs5000_ts
 mcs7830
 mcs_touchkey
 mct_u232
-mctp
 md-cluster
 md4
 mdc800
@@ -3371,7 +3369,6 @@ notifier-error-inject
 nouveau
 nozomi
 npcm750-pwm-fan
-ns
 ns558
 ns83820
 nsh
@@ -4181,7 +4178,6 @@ rtc-sd3078
 rtc-stk17ta8
 rtc-tps6586x
 rtc-tps65910
-rtc-tps80031
 rtc-v3020
 rtc-wilco-ec
 rtc-wm831x
@@ -4429,7 +4425,6 @@ simpledrm
 simplefb
 siox-bus-gpio
 siox-core
-sir_ir
 sis-agp
 sis190
 sis5595
@@ -4931,7 +4926,6 @@ snd-sof-acpi-intel-byt
 snd-sof-intel-atom
 snd-sof-intel-hda
 snd-sof-intel-hda-common
-snd-sof-intel-ipc
 snd-sof-pci
 snd-sof-pci-intel-apl
 snd-sof-pci-intel-cnl
@@ -5374,7 +5368,6 @@ tps6586x-regulator
 tps65910-regulator
 tps65912-regulator
 tps6598x
-tps80031-regulator
 tqmx86
 tqmx86_wdt
 trace-printk

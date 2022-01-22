@@ -852,7 +852,6 @@ clk-plldig
 clk-pwm
 clk-qcom
 clk-raspberrypi
-clk-rk3568
 clk-rk808
 clk-rpm
 clk-rpmh
@@ -971,9 +970,7 @@ cros_usbpd_notify
 cryptd
 crypto_engine
 crypto_safexcel
-crypto_simd
 crypto_user
-cryptoloop
 cs3308
 cs5345
 cs53l32a
@@ -1713,7 +1710,7 @@ go7007-loader
 go7007-usb
 goku_udc
 goldfish_battery
-goodix
+goodix_ts
 gp2ap002
 gp2ap020a00f
 gp8psk-fe
@@ -2387,7 +2384,6 @@ intel-m10-bmc-hwmon
 intel-nand-controller
 intel-qep
 intel-xway
-intel_pmt
 intel_th
 intel_th_acpi
 intel_th_gth
@@ -3117,7 +3113,6 @@ mcs5000_ts
 mcs7830
 mcs_touchkey
 mct_u232
-mctp
 md-cluster
 md4
 mdc800
@@ -3674,7 +3669,6 @@ nouveau
 nozomi
 npcm750-pwm-fan
 nps_enet
-ns
 ns-thermal
 ns558
 ns83820
@@ -4285,7 +4279,6 @@ q6afe-dai
 q6asm
 q6asm-dai
 q6core
-q6dsp-common
 q6routing
 q6sstop-qcs404
 qca8k
@@ -4847,7 +4840,6 @@ rtc-stk17ta8
 rtc-tegra
 rtc-tps6586x
 rtc-tps65910
-rtc-tps80031
 rtc-twl
 rtc-v3020
 rtc-wm831x
@@ -5144,7 +5136,6 @@ simpledrm
 simplefb
 siox-bus-gpio
 siox-core
-sir_ir
 sis190
 sis5595
 sis900
@@ -5520,7 +5511,6 @@ snd-soc-rk817
 snd-soc-rl6231
 snd-soc-rockchip-i2s
 snd-soc-rockchip-max98090
-snd-soc-rockchip-pcm
 snd-soc-rockchip-pdm
 snd-soc-rockchip-rt5645
 snd-soc-rockchip-spdif
@@ -6232,7 +6222,6 @@ tps6586x-regulator
 tps65910-regulator
 tps65912-regulator
 tps6598x
-tps80031-regulator
 tqmx86
 trace-printk
 trancevibrator
