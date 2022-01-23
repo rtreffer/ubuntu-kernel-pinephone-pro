@@ -48,32 +48,6 @@
 		};
 	};
 
-	headset-keys {
-		compatible = "adc-keys";
-		io-channels = <&saradc 2>;
-		io-channel-names = "buttons";
-		keyup-threshold-microvolt = <900000>;
-		poll-interval = <100>;
-
-		headset-play {
-			label = "Play";
-			linux,code = <KEY_PLAYPAUSE>;
-			press-threshold-microvolt = <650000>;
-		};
-
-		headset-up {
-			label = "Volume Up";
-			linux,code = <KEY_VOLUMEUP>;
-			press-threshold-microvolt = <750000>;
-		};
-
-		headset-down {
-			label = "Volume Down";
-			linux,code = <KEY_VOLUMEDOWN>;
-			press-threshold-microvolt = <850000>;
-		};
-	};
-
         bat: battery {
                 compatible = "simple-battery";
                 voltage-min-design-microvolt = <3400000>;
@@ -153,22 +127,30 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&red_led_pin &green_led_pin &blue_led_pin>;
 
-		led-red {
+		led-standby {
 			color = <LED_COLOR_ID_RED>;
-			function = LED_FUNCTION_INDICATOR;
+			default-state = "off";
+			function = LED_FUNCTION_STANDBY;
 			gpios = <&gpio4 RK_PD2 GPIO_ACTIVE_HIGH>;
+			label = "red:standby";
+			panic-indicator;
+			retain-state-suspended;
 		};
 
-		led-green {
+		led-pwr {
 			color = <LED_COLOR_ID_GREEN>;
-			function = LED_FUNCTION_INDICATOR;
+			default-state = "on";
+			function = LED_FUNCTION_POWER;
 			gpios = <&gpio4 RK_PD5 GPIO_ACTIVE_HIGH>;
+			label = "green:disk-activity";
 		};
 
-		led-blue {
+		blue-charging {
 			color = <LED_COLOR_ID_BLUE>;
-			function = LED_FUNCTION_INDICATOR;
+			default-state = "off";
+			function = LED_FUNCTION_CHARGING;
 			gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
+			label = "blue:charging";
 		};
 	};
 
@@ -186,21 +168,6 @@
 		};
 	};
 
-	gpio-key-ri {
-		compatible = "gpio-keys";
-		pinctrl-names = "default";
-		pinctrl-0 = <&ri_pin>;
-
-		ring_indicator: ring-indicator {
-			label = "ring-indicator";
-			linux,can-disable;
-			linux,code = <KEY_WAKEUP>;
-			gpios = <&gpio0 RK_PA1 GPIO_ACTIVE_LOW>;
-			wakeup-event-action = <EV_ACT_ASSERTED>;
-			wakeup-source;
-		};
-	};
-
 	// in1  - digital mic daughhterboard
 	// in2  - headset mic
 	// in3  - modem output  (muxed with mono)
@@ -210,30 +177,29 @@
 	// spaker - amp enabled by SPK_CTL_H
 	//
 	// mclk - GPIO4_A0/I2S_CLK
+	//
+	// some gpio-jack-detection driver?
+	//pinctrl-0 = <&hp_det>; // GPIO4_D4
 
 	rt5640-sound {
 		compatible = "simple-audio-card";
-		pinctrl-names = "default";
-		pinctrl-0 = <&hp_det>;
-		simple-audio-card,name = "PinePhonePro";
+		simple-audio-card,name = "rockchip,rt5640-codec";
 		simple-audio-card,aux-devs = <&speaker_amp>;
 		simple-audio-card,format = "i2s";
 		simple-audio-card,mclk-fs = <256>;
-		simple-audio-card,hp-det-gpio = <&gpio4 RK_PD4 GPIO_ACTIVE_LOW>;
-		simple-audio-card,pin-switches = "Internal Speaker";
 
 		simple-audio-card,widgets =
 			"Microphone", "Headset Microphone",
 			"Microphone", "Internal Microphone",
-			"Headphone", "Headphones",
+			"Headphone", "Headphone Jack",
 			"Speaker", "Internal Earpiece",
 			"Speaker", "Internal Speaker",
 			"Line", "Line In Modem",
 			"Line", "Line Out Modem";
 
 		simple-audio-card,routing =
-			"Headphones", "HPOL",
-			"Headphones", "HPOR",
+			"Headphone Jack", "HPOL",
+			"Headphone Jack", "HPOR",
 			"Internal Earpiece", "SPOLP",
 			"Internal Earpiece", "SPOLN",
 			"Internal Speaker", "Speaker Amp OUTL",
@@ -360,7 +326,6 @@
 		regulator-min-microvolt = <5000000>;
 		regulator-max-microvolt = <5000000>;
 		vin-supply = <&vcc5v0_sys>;
-		regulator-always-on;
 	};
 
 	vcc_4g: vcc-4g {
@@ -373,7 +338,6 @@
 		regulator-min-microvolt = <3800000>;
 		regulator-max-microvolt = <3800000>;
 		vin-supply = <&vcc_sysin>;
-		regulator-always-on;
 	};
 
 	vcc1v8_codec: vcc1v8-codec-regulator {
@@ -432,21 +396,6 @@
 		orientation-switch;
 		mode-switch;
 		svid = /bits/ 16 <0xff01>;
-	};
-
-	sgm3140: led-controller {
-		compatible = "sgmicro,sgm3140";
-		vin-supply = <&vcc3v3_sys>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&flash_pins>;
-		enable-gpios = <&gpio4 RK_PC6 GPIO_ACTIVE_HIGH>;
-		flash-gpios = <&gpio1 RK_PA3 GPIO_ACTIVE_HIGH>;
-
-		sgm3140_flash: led {
-			function = LED_FUNCTION_FLASH;
-			color = <LED_COLOR_ID_WHITE>;
-			flash-max-timeout-us = <250000>;
-		};
 	};
 };
 
@@ -812,7 +761,7 @@
 		/*XXX: also depends on vcca1v8_codec for I2C bus power */
 
 		reset-gpios = <&gpio1 RK_PA0 GPIO_ACTIVE_LOW>;
-		powerdown-gpios = <&gpio2 RK_PB4 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
 		rotation = <180>;
 
 		port {
@@ -826,9 +775,9 @@
 	};
 
 	/* Front-facing camera */
-	ucam: camera@3c {
-		compatible = "ovti,ov5640";
-		reg = <0x3c>;
+	ucam: camera@36 {
+		compatible = "ovti,ov8858";
+		reg = <0x36>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&ucam_pdn>;
 
@@ -838,8 +787,10 @@
 		DOVDD-supply = <&vcc1v8_dvp>;
 		/*XXX: also depends on vcca1v8_codec for I2C bus power */
 
-		powerdown-gpios = <&gpio2 RK_PD4 GPIO_ACTIVE_HIGH>;
+		powerdown-gpios = <&gpio2 RK_PB4 GPIO_ACTIVE_HIGH>;
+
 		rotation = <180>;
+//		status = "disabled";
 
 		port {
 			ucam_out: endpoint {
@@ -1039,7 +990,7 @@
 };
 
 &isp1 {
-	status = "okay";
+	//status = "okay";
 
 	ports {
 		port@0 {
@@ -1057,11 +1008,11 @@
 };
 
 &isp1_mmu {
-	status = "okay";
+	//status = "okay";
 };
 
 &mipi_dsi1 {
-	status = "okay";
+	//status = "okay";
 };
 
 &mipi_dsi {
@@ -1100,6 +1051,31 @@
 
 &uart3 {
 	status = "okay";
+
+	modem {
+		compatible = "quectel,eg25";
+		char-device-name = "modem-power";
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&modem_control_pins>;
+
+		power-supply = <&vcc_4g>;
+		vbus-supply = <&vcc_4g_5v>;
+
+		enable-gpios = <&gpio0 RK_PB0 GPIO_ACTIVE_LOW>; // W_DISABLE#
+		reset-gpios = <&gpio3 RK_PB0 GPIO_ACTIVE_HIGH>;
+		status-gpios = <&gpio3 RK_PA6 GPIO_ACTIVE_HIGH>;
+		pwrkey-gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
+
+		host-ready-gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_HIGH>; // apready
+		wakeup-gpios = <&gpio0 RK_PA1 GPIO_ACTIVE_HIGH>; // ri
+
+		dtr-gpios = <&gpio0 RK_PA3 GPIO_ACTIVE_HIGH>;
+		cts-gpios = <&gpio3 RK_PC0 GPIO_ACTIVE_HIGH>;
+		rts-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_HIGH>;
+
+		quectel,qdai = "1,1,0,1,0,0,1,1";
+	};
 };
 
 &pmu_io_domains {
@@ -1134,11 +1110,11 @@
 		};
 
 		wcam_pdn: wcam-pdn {
-			rockchip,pins = <2 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		ucam_pdn: ucam-pdn {
-			rockchip,pins = <2 RK_PD4 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <2 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -1160,25 +1136,28 @@
 		blue_led_pin: blue-led-pin {
 			rockchip,pins = <4 RK_PD6 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
-
-		flash_pins: flash-pins {
-			rockchip,pins =
-				<1 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>,
-				<4 RK_PC6 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
 	};
 
 	modem {
-		ri_pin: ri-pin {
-			rockchip,pins = <0 RK_PA1 RK_FUNC_GPIO &pcfg_pull_up>;
-		};
-
 		vcc_4g_5v_en: vcc-4g-5v-en-pin {
 			rockchip,pins = <1 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 
 		vcc_4g_en: vcc-4g-en-pin {
 			rockchip,pins = <4 RK_PC7 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+
+		modem_control_pins: modem-control-pins {
+			rockchip,pins =
+				<0 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PB0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PA6 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PA1 RK_FUNC_GPIO &pcfg_pull_none>,
+				<0 RK_PA3 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PC0 RK_FUNC_GPIO &pcfg_pull_none>,
+				<3 RK_PC1 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -1245,6 +1224,10 @@
 };
 
 &pwm0 {
+	status = "okay";
+};
+
+&pwm1 {
 	status = "okay";
 };
 
