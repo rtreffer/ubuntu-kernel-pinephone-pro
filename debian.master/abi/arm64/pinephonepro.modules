@@ -606,7 +606,6 @@ bh1770glc
 bh1780
 binder_linux
 binfmt_misc
-blake2b_generic
 blake2s_generic
 block2mtd
 blocklayoutdriver
@@ -693,7 +692,6 @@ btmtksdio
 btmtkuart
 btqca
 btqcomsmd
-btrfs
 btrsi
 btrtl
 btsdio
@@ -1710,7 +1708,7 @@ go7007-loader
 go7007-usb
 goku_udc
 goldfish_battery
-goodix
+goodix_ts
 gp2ap002
 gp2ap020a00f
 gp8psk-fe
@@ -2774,7 +2772,6 @@ libceph
 libchacha
 libchacha20poly1305
 libcomposite
-libcrc32c
 libcurve25519
 libcurve25519-generic
 libcxgb
@@ -3660,7 +3657,6 @@ nls_iso8859-9
 nls_koi8-r
 nls_koi8-ru
 nls_koi8-u
-nls_utf8
 noa1305
 noon010pc30
 nosy
@@ -4424,7 +4420,6 @@ raid0
 raid1
 raid10
 raid456
-raid6_pq
 raid_class
 rainshadow-cec
 ramoops
@@ -6017,7 +6012,6 @@ tcm_fc
 tcm_loop
 tcm_qla2xxx
 tcm_usb_gadget
-tcp_bbr
 tcp_bic
 tcp_cdg
 tcp_dctcp
@@ -6728,8 +6722,6 @@ xillyusb
 xiphera-trng
 xircom_cb
 xlnx_vcu
-xor
-xor-neon
 xpad
 xr_serial
 xrs700x
@@ -6811,7 +6803,6 @@ xt_time
 xt_u32
 xtkbd
 xusbatm
-xxhash_generic
 xz_dec_test
 yam
 yamaha-yas530
@@ -6851,7 +6842,6 @@ zr36067
 zr364xx
 zram
 zstd
-zstd_compress
 zunicode
 zynqmp-aes-gcm
 zynqmp-dpsub
