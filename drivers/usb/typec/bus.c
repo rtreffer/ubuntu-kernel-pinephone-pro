@@ -335,29 +335,6 @@ static int typec_uevent(struct device *dev, struct kobj_uevent_env *env)
 			      altmode->svid, altmode->mode);
 }
 
-static int typec_altmode_create_links(struct altmode *alt)
-{
-	struct device *port_dev = &alt->partner->adev.dev;
-	struct device *dev = &alt->adev.dev;
-	int err;
-
-	err = sysfs_create_link(&dev->kobj, &port_dev->kobj, "port");
-	if (err)
-		return err;
-
-	err = sysfs_create_link(&port_dev->kobj, &dev->kobj, "partner");
-	if (err)
-		sysfs_remove_link(&dev->kobj, "port");
-
-	return err;
-}
-
-static void typec_altmode_remove_links(struct altmode *alt)
-{
-	sysfs_remove_link(&alt->partner->adev.dev.kobj, "partner");
-	sysfs_remove_link(&alt->adev.dev.kobj, "port");
-}
-
 static int typec_probe(struct device *dev)
 {
 	struct typec_altmode_driver *drv = to_altmode_driver(dev->driver);
@@ -369,15 +346,7 @@ static int typec_probe(struct device *dev)
 	if (!altmode->partner)
 		return -ENODEV;
 
-	ret = typec_altmode_create_links(altmode);
-	if (ret) {
-		dev_warn(dev, "failed to create symlinks\n");
-		return ret;
-	}
-
 	ret = drv->probe(adev);
-	if (ret)
-		typec_altmode_remove_links(altmode);
 
 	return ret;
 }
@@ -387,8 +356,6 @@ static void typec_remove(struct device *dev)
 	struct typec_altmode_driver *drv = to_altmode_driver(dev->driver);
 	struct typec_altmode *adev = to_typec_altmode(dev);
 	struct altmode *altmode = to_altmode(adev);
-
-	typec_altmode_remove_links(altmode);
 
 	if (drv->remove)
 		drv->remove(to_typec_altmode(dev));
